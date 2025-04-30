@@ -1,0 +1,106 @@
+{# templates/search.html #}
+{% extends "layout.html" %}
+{% block title %}Search • {{ site_name or "My Movie Site" }}{% endblock %}
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/movie.css') }}">
+
+    <header>
+        <h1 class="message">
+            {% if request.args.get('q') %}
+                Search Results for “{{ request.args.get('q') }}”
+            {% else %}
+                {{message}}
+            {% endif %}
+        </h1>
+    </header>
+
+    {# ─── Page Info & Pagination ──────────────────────────────────────────── #}
+    <div id="page-info">
+        <h2>Page {{ pageNum }} of {{ totalPages }}</h2>
+    </div>
+    <div id="pagination">
+        <a href="#" id="prev" onclick="changePage(-1)">&#8592; Previous</a>
+        <a href="#" id="next" onclick="changePage(1)">Next &#8594;</a>
+    </div>
+
+    {# ─── View Toggle ──────────────────────────────────────────────────────── #}
+    <div id="view-toggle">
+        <button id="grid-view" onclick="toggleView('grid')">Grid View</button>
+        <button id="list-view" onclick="toggleView('list')">List View</button>
+    </div>
+
+    {# ─── Results ─────────────────────────────────────────────────────────── #}
+    {% if movies %}
+    <div class="movies-container grid-view">
+        {% for movie in movies %}
+        <div class="movie-card">
+            <div class="movie-poster hidden">
+                <img
+                    src="{{ url_for('static', filename='assets/highQ/' ~ movie.rank ~ '.jpg') }}"
+                    alt="{{ movie.title_name }} Poster"
+                />
+            </div>
+            <div class="movie-details">
+                <h2 class="movie-title">
+                    <a href="{{ url_for('details', movie_id=movie.title_id) }}">{{ movie.title_name }}</a>
+                </h2>
+                <p class="movie-info"><strong>Runtime:</strong> {{ movie.runtime }} minutes</p>
+                <p class="movie-info"><strong>Directors:</strong>
+                    {% for d in movie.directors %}
+                        <a href="{{ url_for('director', director_id=d.id) }}">{{ d.name }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p class="movie-info"><strong>Actors:</strong>
+                    {% for a in movie.actors %}
+                        <a href="{{ url_for('actor', actor_id=a.id) }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p class="movie-info"><strong>Genres:</strong>
+                    {% for g in movie.genres %}
+                        <a href="{{ url_for('genre', genre_id=g.id) }}">{{ g.name }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="no-results">
+            No movies found matching “{{ request.args.get('q','') }}”.
+        </p>
+    {% endif %}
+
+    {# ─── Page Scripts ────────────────────────────────────────────────────── #}
+    <script>
+        // Toggle between Grid and List View
+        function toggleView(view) {
+            const container = document.querySelector('.movies-container');
+            const posters = document.querySelectorAll('.movie-poster');
+            if (view === 'grid') {
+                container.classList.remove('list-view');
+                container.classList.add('grid-view');
+                posters.forEach(p => p.classList.add('hidden'));
+            } else {
+                container.classList.remove('grid-view');
+                container.classList.add('list-view');
+                posters.forEach(p => p.classList.remove('hidden'));
+            }
+        }
+
+        // Page change functionality
+        const url = new URL(window.location.href);
+        const pageNumber = {{ pageNum }};
+        if (pageNumber <= 1) {
+            document.getElementById('prev').style.display = 'none';
+            document.getElementById('prev').parentElement.style.justifyContent = 'end';
+        }
+        if (pageNumber >= {{ totalPages }}) {
+            document.getElementById('next').style.display = 'none';
+        }
+        function changePage(delta) {
+            const newPage = pageNumber + delta;
+            url.searchParams.set('p', newPage);
+            window.location.href = url;
+        }
+    </script>
+{% endblock %}

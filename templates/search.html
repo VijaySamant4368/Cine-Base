@@ -1,0 +1,206 @@
+{# templates/search.html #}
+{% extends "layout.html" %}
+
+{% block title %}Search • {{ site_name or "My Movie Site" }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+<section class="search-section">
+  {# ─── Search Form ─────────────────────────────────────────────────────────── #}
+  <form id="search-form" action="{{ url_for('search') }}" method="get">
+<div class="search-mode">
+  <input type="radio" id="mode-title" name="m" value="t"
+         {% if request.args.get('m','t')=='t' %}checked{% endif %}>
+  <label for="mode-title">Title</label>
+
+  <input type="radio" id="mode-desc" name="m" value="d"
+         {% if request.args.get('m','t')=='d' %}checked{% endif %}>
+  <label for="mode-desc">Description</label>
+</div>
+
+
+<div class="basic-search">
+  <input
+    type="text"
+    name="q"
+    id="q-input"
+    placeholder="{% if request.args.get('m','t')=='d' %}Search descriptions…{% else %}Search titles…{% endif %}"
+    value="{{ request.args.get('q','') }}"
+  >
+  <button type="submit">Search</button>
+</div>
+
+
+    <details class="advanced-options">
+      <summary>Advanced Options</summary>
+      <div class="genres-selection">
+        {# Precompute include/exclude lists #}
+        {% set include_ids = request.args.get('g','').split(',') %}
+        {% set exclude_ids = request.args.get('G','').split(',') %}
+
+        {% for genre in genres %}
+          {% set gid = genre.id|string %}
+          {% if gid in include_ids %}
+            {% set state = 'include' %}
+          {% elif gid in exclude_ids %}
+            {% set state = 'exclude' %}
+          {% else %}
+            {% set state = 'neutral' %}
+          {% endif %}
+
+          <button
+            type="button"
+            class="genre-btn state-{{ state }}"
+            data-id="{{ gid }}"
+            data-state="{{ state }}"
+          >{{ genre.name }}</button>
+        {% endfor %}
+
+        {# Hidden inputs to carry lists of IDs on submit #}
+        <input type="hidden" name="g" id="g-input" value="{{ request.args.get('g','') }}">
+        <input type="hidden" name="G" id="G-input" value="{{ request.args.get('G','') }}">
+      </div>
+    </details>
+  </form>
+
+  {# ─── Results ──────────────────────────────────────────────────────────────── #}
+  {% if movies %}
+    <div id="page-info">
+      <h2>Page {{ pageNum }} of {{ totalPages }}</h2>
+    </div>
+
+    <div id="pagination">
+      <a href="#" id="prev" onclick="changePage(-1)">&#8592; Previous</a>
+      <a href="#" id="next" onclick="changePage(1)">Next &#8594;</a>
+    </div>
+
+    <div id="view-toggle">
+      <button id="grid-view" onclick="toggleView('grid')">Grid View</button>
+      <button id="list-view" onclick="toggleView('list')">List View</button>
+    </div>
+
+    <div class="movies-container grid-view">
+      {% for movie in movies %}
+        <div class="movie-card">
+          <div class="movie-poster hidden">
+
+            <div class="movie-poster hidden">
+                <img src="{{ url_for('static', filename='assets/highQ/' + movie.rank|string + '.jpg') }}" alt="{{ movie.title_name }} Poster" />
+            </div> 
+            
+          </div>
+          <div class="movie-details">
+            <h2 class="movie-title">
+              <a href="{{ url_for('details', movie_id=movie.title_id) }}">
+                {{ movie.title_name }}
+              </a>
+            </h2>
+            <p class="movie-info"><strong>Runtime:</strong> {{ movie.runtime }} minutes</p>
+            <p class="movie-info"><strong>Directors:</strong>
+              {% for d in movie.directors %}
+                <a href="{{ url_for('director', director_id=d.id) }}">{{ d.name }}</a>{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <p class="movie-info"><strong>Actors:</strong>
+              {% for a in movie.actors %}
+                <a href="{{ url_for('actor', actor_id=a.id) }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <p class="movie-info"><strong>Genres:</strong>
+              {% for g in movie.genres %}
+                <a href="{{ url_for('genre', genre_id=g.id) }}">{{ g.name }}</a>{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="no-results">
+      No movies found matching “{{ request.args.get('q','') }}”.
+    </p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('search-form');
+  const gInput = document.getElementById('g-input');
+  const GInput = document.getElementById('G-input');
+  const buttons = Array.from(document.querySelectorAll('.genre-btn'));
+
+  // Cycle each button through neutral → include → exclude → neutral
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      let state = btn.dataset.state;
+      state = state === 'neutral' ? 'include'
+            : state === 'include' ? 'exclude'
+            : 'neutral';
+      btn.dataset.state = state;
+      btn.classList.remove('state-neutral','state-include','state-exclude');
+      btn.classList.add('state-' + state);
+    });
+  });
+
+  // Before submit, collect included/excluded IDs
+  form.addEventListener('submit', () => {
+    const includes = [];
+    const excludes = [];
+    buttons.forEach(btn => {
+      if (btn.dataset.state === 'include')   includes.push(btn.dataset.id);
+      if (btn.dataset.state === 'exclude')   excludes.push(btn.dataset.id);
+    });
+    gInput.value  = includes.join(',');
+    GInput.value  = excludes.join(',');
+  });
+});
+
+
+
+        // Toggle between Grid and List View
+        function toggleView(view) {
+            const container = document.querySelector('.movies-container');
+            const posters = document.querySelectorAll('.movie-poster');
+            if (view === 'grid') {
+                container.classList.remove('list-view');
+                container.classList.add('grid-view');
+                posters.forEach(p => p.classList.add('hidden'));
+            } else {
+                container.classList.remove('grid-view');
+                container.classList.add('list-view');
+                posters.forEach(p => p.classList.remove('hidden'));
+            }
+        }
+
+        // Page change functionality
+        const url = new URL(window.location.href);
+        const pageNumber = {{ pageNum }};
+        if (pageNumber <= 1) {
+            document.getElementById('prev').style.display = 'none';
+        }
+        if (pageNumber >= {{ totalPages }}) {
+            document.getElementById('next').style.display = 'none';
+        }
+        function changePage(delta) {
+            const newPage = pageNumber + delta;
+            url.searchParams.set('p', newPage);
+            window.location.href = url;
+        }
+
+        // swap the placeholder whenever the user toggles m
+document.querySelectorAll('input[name="m"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const q = document.getElementById('q-input');
+    if (radio.value === 'd') {
+      q.setAttribute('placeholder', 'Search descriptions…');
+    } else {
+      q.setAttribute('placeholder', 'Search titles…');
+    }
+  });
+});
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+/* static/css/layout.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #141414;                                /* darker base */
+  background: url('/static/images/movie-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;                                              /* all text white */
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+
+a {
+  color: #1E90FF;                                           /* link = DodgerBlue */
+  text-decoration: none;
+}
+
+a:hover {
+  color: #E50914;                                           /* hover = Netflix red */
+}
+
+.navbar {
+  background-color: #E50914;                                /* Netflix red */
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-home {
+  font-size: 1.2em;
+  color: #fff;
+  margin-right: 15px;
+}
+
+.site-name {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #fff;
+}
+
+.nav-search-form input[type="text"] {
+  padding: 5px 8px;
+  border: 1px solid #1E90FF;                               /* blue border */
+  border-radius: 3px;
+  background-color: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.nav-search-form input[type="text"]::placeholder {
+  color: #ccc;                                              /* lighter placeholder */
+}
+
+.nav-search-form button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  color: #1E90FF;                                           /* blue icon */
+  margin-left: 5px;
+  transition: color 0.2s ease;
+}
+
+.nav-search-form button:hover {
+  color: #fff;                                              /* hover to white */
+}

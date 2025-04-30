@@ -1,0 +1,83 @@
+{# templates/details.html #}
+{% extends "layout.html" %}
+
+{% block title %}
+  {{ movie.title_name }} — Movie Details
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/movie-details.css') }}">
+{% endblock %}
+
+{% block content %}
+  <header>
+    <div class="nav-buttons">
+      <a href="/details={{ (movie.rank - 2) % 1000 + 1 }}" class="button">&#8592; Previous</a>
+      <a href="{{ url_for('movie') }}" class="button">Home</a>
+      <a href="/details={{ (movie.rank) % 1000 + 1 }}" class="button">Next &#8594;</a>
+    </div>
+    <h1>{{ movie.title_name }} — Movie Details</h1>
+  </header>
+
+  <div class="movie-details-container">
+    <div class="movie-poster">
+      <img
+        src="{{ url_for('static', filename='assets/highQ/' ~ movie.rank ~ '.jpg') }}"
+        alt="{{ movie.title_name }} Poster"
+      >
+    </div>
+
+    <div class="movie-info">
+      <h2>Description</h2>
+      <p>{{ movie.description }}</p>
+
+      <div class="movie-stats">
+        <p><strong>Rating:</strong> {{ movie.rating }} / 10</p>
+        <p><strong>Rank:</strong> #{{ movie.rank }}</p>
+        <p><strong>Votes:</strong> {{ movie.votes }} votes</p>
+        <p><strong>Revenue:</strong> ${{ movie.revenue }}</p>
+        <p><strong>Runtime:</strong> {{ movie.runtime }} minutes</p>
+        <p><strong>Year:</strong> {{ movie.year }}</p>
+      </div>
+
+      <div id="movie-extras">
+        <div class="movie-genres">
+          <h3>Genres</h3>
+          <ul>
+            {% for genre in movie.genres %}
+              <li><a href="{{ url_for('genre', genre_id=genre.id) }}">{{ genre.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="movie-actors">
+          <h3>Actors</h3>
+          <ul>
+            {% for actor in movie.actors %}
+              <li><a href="{{ url_for('actor', actor_id=actor.id) }}">{{ actor.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="movie-directors">
+          <h3>Directors</h3>
+          <ul>
+            {% for director in movie.directors %}
+              <li><a href="{{ url_for('director', director_id=director.id) }}">{{ director.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    // (Optional) If you want to use a goBack button instead of linking:
+    function goBack(event) {
+      event.preventDefault();
+      window.history.back();
+    }
+  </script>
+{% endblock %}

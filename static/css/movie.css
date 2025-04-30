@@ -1,0 +1,156 @@
+/* static/css/movie.css */
+
+/* ─── Page Info & Pagination ──────────────────────────────────────────────── */
+#page-info {
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+#pagination {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+#pagination a {
+  background-color: #E50914;           /* Netflix red */
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+#pagination a:hover {
+  background-color: #B81D24;           /* darker red */
+}
+
+/* ─── View Toggle ──────────────────────────────────────────────────────────── */
+#view-toggle {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#view-toggle button {
+  background-color: #E50914;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 5px;
+  border: none;
+  margin: 0 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#view-toggle button:hover,
+#view-toggle button.active {
+  background-color: #B81D24;
+}
+
+/* ─── Movies Grid & List ──────────────────────────────────────────────────── */
+.movies-container {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.grid-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.list-view {
+  display: block;
+}
+
+.list-view .movie-card {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.list-view .movie-poster {
+  width: 150px;
+  margin-right: 20px;
+}
+
+/* ─── Movie Card ──────────────────────────────────────────────────────────── */
+.movie-card {
+  background-color: #181818;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.7);
+}
+
+/* ─── Poster ──────────────────────────────────────────────────────────────── */
+.movie-poster img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+
+/* ─── Movie Details ───────────────────────────────────────────────────────── */
+.movie-title {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.movie-info {
+  font-size: 1em;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.movie-info strong {
+  color: #fff;
+}
+
+.movie-info a {
+  color: #1E90FF;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.movie-info a:hover {
+  color: #E50914;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .movie-card {
+    padding: 15px;
+  }
+  .movie-title {
+    font-size: 1.6em;
+  }
+  .movie-info {
+    font-size: 0.9em;
+  }
+  #pagination a {
+    padding: 8px 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .basic-search {
+    flex-direction: column;
+  }
+  .basic-search button {
+    margin-top: 0.5rem;
+  }
+  .genres-selection {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+}
