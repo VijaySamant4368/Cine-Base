@@ -1,5 +1,4 @@
 from pinecone import Pinecone
-from sentence_transformers import SentenceTransformer
 
 
 # Set up Pinecone instance using the new API
@@ -9,8 +8,10 @@ pc = Pinecone(api_key=api_key)
 # Check if the index exists; if not, create it
 index_name = "movie-base"
 index = pc.Index(index_name)
-model = SentenceTransformer('all-MiniLM-L6-v2')
-tokenizer = model.tokenizer  # This is the tokenizer used by the model
+# model = SentenceTransformer('all-MiniLM-L6-v2')
+# tokenizer = model.tokenizer  # This is the tokenizer used by the model
+model = None        #Lazy loading to save build time
+tokenizer = None
 
 def getMoviesByDescText(desc_text, top_k=10):
     """
@@ -23,6 +24,13 @@ def getMoviesByDescText(desc_text, top_k=10):
     Returns:
         list: A list of movie IDs that match the description text.
     """
+    global model, tokenizer
+
+    if model is None or tokenizer is None:
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        tokenizer = model.tokenizer
+
     vector = model.encode(desc_text).tolist()
 
     query_response = index.query(vector=[vector], top_k=top_k, include_metadata=True)
