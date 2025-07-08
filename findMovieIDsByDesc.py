@@ -1,8 +1,9 @@
 from pinecone import Pinecone
 from huggingface_hub import InferenceClient
+import os
 
 # Set up Pinecone instance using the new API
-api_key = "pcsk_5Z2G43_TGqbvtrGoeEMLCnRJCwK1eLMtih1Arb2bM9coQCEXWjbD33aPDdkYwYmC9ibq6Y"
+api_key = os.getenv("PINECONE_TOKEN")
 pc = Pinecone(api_key=api_key)
 
 # Check if the index exists; if not, create it
@@ -24,7 +25,7 @@ def getMoviesByDescText(desc_text, top_k=10):
     Returns:
         list: A list of movie IDs that match the description text.
     """
-    client = InferenceClient(provider="hf-inference", api_key="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")
+    client = InferenceClient(provider="hf-inference", api_key=os.getenv("HF_TOKEN"))
     vector = client.feature_extraction(model="sentence-transformers/all-MiniLM-L6-v2", text=desc_text).tolist() #Needs numpy to perform .toList()
     query_response = index.query(vector=[vector], top_k=top_k, include_metadata=True)
     movie_ids = [int(match['id']) for match in query_response['matches']]
